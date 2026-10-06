@@ -1,45 +1,45 @@
 name: Build Loly Live APK
 
 on:
-push:
-branches: [ main, master ]
-workflow_dispatch:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
-_  build-apk:
-runs-on: ubuntu-latest
-steps:
-- name: Checkout code
-uses: actions/checkout@v4
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  - name: Setup Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-  - name: Install dependencies
-    run: npm install
+      - name: Install dependencies
+        run: npm install
 
-  - name: Build web app
-    run: npm run build
+      - name: Build web app
+        run: npm run build
 
-  - name: Install Capacitor CLI
-    run: npm install -g @capacitor/cli
+      - name: Install Capacitor CLI
+        run: npm install -g @capacitor/cli
 
-  - name: Add Android platform
-    run: |
-      npx cap add android
-      npx cap sync android
+      - name: Add Android platform
+        run: |
+          npx cap add android
+          npx cap sync android
 
-  - name: Compile APK via Gradle
-    run: |
-      cd android
-      chmod +x gradlew
-      ./gradlew assembleDebug
+      - name: Compile APK via Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
-  - name: Upload APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: LolyLive-debug-apk
-      path: android/app/build/outputs/apk/debug/app-debug.apk
-      retention-days: 14
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LolyLive-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
