@@ -6,36 +6,30 @@ branches: [ main, master ]
 workflow_dispatch:
 
 jobs:
-build-apk:
+_  build-apk:
 runs-on: ubuntu-latest
 steps:
-- name: Checkout Source Code
+- name: Checkout code
 uses: actions/checkout@v4
 
-  - name: Setup Node.js Environment
+  - name: Setup Node.js
     uses: actions/setup-node@v4
     with:
-      node-version: 20
+      node-version: '20'
 
-  - name: Install Project Dependencies
+  - name: Install dependencies
     run: npm install
 
-  - name: Build Web Application
+  - name: Build web app
     run: npm run build
 
   - name: Install Capacitor CLI
     run: npm install -g @capacitor/cli
 
-  - name: Initialize Android Native Project
+  - name: Add Android platform
     run: |
       npx cap add android
       npx cap sync android
-
-  - name: Inject Permissions (Camera, Microphone, Internet)
-    run: |
-      MANIFEST="android/app/src/main/AndroidManifest.xml"
-      PERMS='    <uses-permission android:name="android.permission.INTERNET" />\\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\\n    <uses-permission android:name="android.permission.CAMERA" />\\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />'
-      sed -i "/<manifest/a $PERMS" "$MANIFEST"
 
   - name: Compile APK via Gradle
     run: |
@@ -43,7 +37,7 @@ uses: actions/checkout@v4
       chmod +x gradlew
       ./gradlew assembleDebug
 
-  - name: Upload APK to Artifacts
+  - name: Upload APK
     uses: actions/upload-artifact@v4
     with:
       name: LolyLive-debug-apk
