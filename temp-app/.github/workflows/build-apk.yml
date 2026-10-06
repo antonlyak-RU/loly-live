@@ -1,0 +1,70 @@
+name: Build Loly Live APK
+
+on:
+push:
+branches: [ main, master ]
+workflow_dispatch:
+
+jobs:
+build-apk:
+runs-on: ubuntu-latest
+steps:
+- name: Checkout Source Code
+uses: actions/checkout@v4
+
+  - name: Setup Node.js Environment
+    uses: actions/setup-node@v4
+    with:
+      node-version: 20
+      cache: 'npm'
+
+  - name: Install Project Dependencies
+    run: npm install
+
+  - name: Build Web Application
+    run: npm run build
+
+  - name: Setup Java Development Kit (JDK 17)
+    uses: actions/setup-java@v4
+    with:
+      distribution: 'zulu'
+      java-version: '17'
+
+  - name: Initialize Android Native Project
+    run: |
+      npx cap add android
+      npx cap sync android
+
+  - name: Inject Permissions (Camera, Microphone, Internet)
+    run: |
+      python3 -c '
+      manifest_path = "android/app/src/main/AndroidManifest.xml"
+      with open(manifest_path, "r", encoding="utf-8") as f:
+          content = f.read()
+      
+      permissions = """
+          
+          
+          
+          
+          
+      """
+      
+      if "", permissions)
+          with open(manifest_path, "w", encoding="utf-8") as f:
+              f.write(content)
+      print("Permissions injected successfully!")
+      '
+
+  - name: Compile APK via Gradle
+    run: |
+      cd android
+      chmod +x gradlew
+      ./gradlew assembleDebug
+
+  - name: Upload APK to Artifacts
+    uses: actions/upload-artifact@v4
+    with:
+      name: LolyLive-debug-apk
+      path: android/app/build/outputs/apk/debug/app-debug.apk
+      retention-days: 14
